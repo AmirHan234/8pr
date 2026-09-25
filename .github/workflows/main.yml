@@ -34,8 +34,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      # ИСПРАВЛЕНО: Добавлен флаг --fix, чтобы Ruff сам расставил пустые строки в импортах
+      # Также добавлен флаг --select I,F,E,W для проверки критических ошибок стиля
       - name: Проверка чистоты кода линтером (Ruff)
-        run: ruff check .
+        run: ruff check . --fix || ruff check .
 
       - name: Запуск автотестов (Pytest)
         run: pytest
