@@ -1,7 +1,9 @@
 from fastapi.testclient import TestClient
+
 from src.main import app
 
 client = TestClient(app)
+
 
 def test_calculate_bmi_success():
     # Проверяем расчет для человека весом 70 кг и ростом 1.75 м
