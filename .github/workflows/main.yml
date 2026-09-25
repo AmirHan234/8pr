@@ -34,8 +34,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # ИСПРАВЛЕНО: Добавлен флаг --fix, чтобы Ruff сам расставил пустые строки в импортах
-      # Также добавлен флаг --select I,F,E,W для проверки критических ошибок стиля
       - name: Проверка чистоты кода линтером (Ruff)
         run: ruff check . --fix || ruff check .
 
@@ -48,7 +46,6 @@ jobs:
   build-and-push:
     # Запускать этот этап только если этап тестирования прошел успешно
     needs: build-and-test
-    # Публиковать только в том случае, если это пуш Git-тега релиза
     runs-on: ubuntu-latest
 
     steps:
@@ -62,16 +59,12 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
 
-      - name: Извлекаем версию из тега
-        id: get_version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
-
       - name: Сборка и отправка Docker-образа
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          # Публикуем сразу два тега: актуальный номер версии и ярлык latest
+          # Используем встроенный хэш коммита для безопасного тега
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/bmi-api:latest
-            ${{ secrets.DOCKER_USERNAME }}/bmi-api:${{ env.VERSION }}
+            ${{ secrets.DOCKER_USERNAME }}/bmi-api:${{ github.sha }}
